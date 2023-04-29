@@ -1,2 +1,1 @@
-# python
-python
+一个python实验文件

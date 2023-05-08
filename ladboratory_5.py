@@ -60,3 +60,16 @@ import pandas as pd
 url = 'https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv'
 document = pd.read_csv(url)
 titanic = document.txt
+
+# 3. 理解损失函数、梯度下降法、学习率、L1和L2正则化的基本概念。
+# 安装mglearn库，使用LinearRegression、SGDRegressor、Ridge、Lasso 四种回归方法预测扩展波士顿房价，对比试验结果，解释运行结果。
+from sklearn.datasets import load_boston    #load_boston 已经在 scikit-learn 的1.2版本中被移除了
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression, SGDRegressor, Ridge
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+
+data = load_boston()
+
+# 4. 选做信用卡欺诈检测案例的实验，理解上采样、下采用的概念。

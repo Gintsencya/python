@@ -1,0 +1,7 @@
+2023-5-10
+scrapy startproject scrapytutorial  //创建scrapytutorial文件
+scrapy genspider quotes "https://quotes.toscrape.com/"  //创建一个spider内的py文件，爬取web
+改写了item保存数据
+scrapy crawl quotes //运行项目获取生成quotesitem类型
+
+2023-5

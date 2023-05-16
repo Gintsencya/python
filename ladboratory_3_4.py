@@ -368,3 +368,105 @@ data.sort_values(by = ['total','math'], ascending = False,inplace=True)
 #按总分、数学两项降序排列,总分⼀样再⽐较数学
 print(data) 
 #index仍为原先的值，如果想索引改为重新编号，可以在sort_values时，指定ignore_index=True参数，或排序号再调⽤reset_index
+
+
+
+# 9. 安装运行MongoDB数据库，安装pymongo扩展库。
+# 编写程序连接MongoDB数据库服务器；在MongoDB中创建一个myDB数据库，在该数据库下创建一个名字为myCollection的集合（集合相当于关系数据库中的表）；
+# 再在该集合下创建两个文档（文档相当于关系数据库中的记录）分别存储tom和alice的个人信息。查询集合的所有文档、修改文档的内容，最后删除指定条件的文档。
+# -*- coding: utf-8 -*-
+'''
+【基本概念】
+关系型数据库： 数据库 -----> 表 -----> 记录（字段名和字段值）
+MongoDB数据库： 数据库 -----> 集合 -----> ⽂档（键：值对）
+【相关⽅法】
+增：insert_one()、insert_many()
+删：delete_one()删除第⼀个匹配到⽂档；delete_many()批量删除匹配⽂档
+改：update_one(),update_many()
+统计⽂档数：count_documents()
+查: find_one, find()
+【BSON⽂件格式】
+BSON是⼀种类JSON的⼀种⼆进制形式的存储格式，BSON有三个特点：轻量性、可遍历性、⾼
+效性。MongoDB使⽤了BSON这种结构来存储数据和⽹络数据交换。
+'''
+import pymongo
+from bson import ObjectId
+print(pymongo.__version__)
+'''
+4.2.0
+由于mongodb数据库版本升级较快，旧版本的⼀些语句在新版本中已弃⽤有警告或直接产⽣异
+常，做实验时请注意检查版本。本例中mongdb的版本为6.0.1
+'''
+# 1.连接数据库服务器,获取客户端对象
+mongo_client = pymongo.MongoClient(host = 'localhost', port = 27017)
+# 2.获取数据库对象
+db = mongo_client.myDB
+# 也可写为：db = mongo_client['myDB']
+# 3.获取集合对象 ---- collection对应于关系型数据库中的table
+my_collection = db.myCollection
+# 也可写为：my_collection = db['myCollection']
+print("——"*50)
+# 4.插⼊⽂档
+tom = {'name':'Tom','age':18,'gender':'男','hobbies':['吃饭','睡觉','玩游戏']}
+alice = {'name':'Alice','age':19,'gender':'⼥','hobbies':['读书','跑步','学Python']}
+tom_id = my_collection.insert_one(tom)
+alice_id = my_collection.insert_one(alice)
+print(tom_id)
+print(alice_id)
+print("——"*50)
+
+print(tom_id.inserted_id)
+'''623564019b3c522b9cb0a2bb'''
+# 5.查询⽂档
+print(my_collection.count_documents({})) # 获取⽂档个数
+''' 运⾏结果：
+2
+'''
+cursor = my_collection.find()
+for item in cursor:
+    print(item)
+    print("——"*50)
+
+#根据_id查询单条记录,以下两条语句均可实现，如果提示ObjectId‘ is not defined’，请检查之前是否有from bson import ObjectId
+my_collection.find_one({'_id':ObjectId('623564019b3c522b9cb0a2bb')})
+my_collection.find_one({'_id':tom_id.inserted_id})
+''' 查询结果是⼀个dict
+{'_id': ObjectId('623564019b3c522b9cb0a2bb'),
+'name': 'Tom',
+'age': 18,
+'gender': '男',
+'hobbies': ['吃饭', '睡觉', '玩游戏']}
+'''
+#查询年龄⼤于等于19的⽂档
+for i in my_collection.find({'age':{'$gte':19}}):
+    print(i)
+    print("——"*50)
+
+# 6.修改⽂档
+my_collection.update_one({'name':'Tom'},{'$set':{'hobbies':['向Alice学习读书','跟Alice⼀起跑步','同Alice⼀块学习Python']}})
+#$set：只修改指定键的值，其它键值对不变，否则没有修改的其它键值对也被删掉了(除了_id键值对)
+#查看修改后的效果
+for item in my_collection.find():
+    print(item)
+    print("——"*50)
+
+# 7.删除⽂档
+my_collection.delete_one({'name':'Tom'})
+for item in my_collection.find():
+    print(item)
+
+#8.删除所有⽂档
+my_collection.delete_many({})
+''' 运⾏结果：
+{'n': 1, 'ok': 1.0}
+'''
+#9. 删除数据库
+mongo_client.db.command("dropDatabase")
+''' 运⾏结果：
+{'ok': 1.0}
+'''
+'''
+MongoDB窗⼝对应的命令为：
+删除集合：db.collection名.drop()
+删除数据库：db.dropDatabase()
+'''
